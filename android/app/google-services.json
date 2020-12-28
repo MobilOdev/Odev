@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "550452464733",
+    "project_id": "odev-3fb1c",
+    "storage_bucket": "odev-3fb1c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:550452464733:android:11e34eff53a58136c351b4",
+        "android_client_info": {
+          "package_name": "com.mobil"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "550452464733-n977rs1lf7pv8mc03nuq8tcdp987suqo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb5Ghutc9y3LWhv5NgEWg-e63yIOyiG-I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "550452464733-n977rs1lf7pv8mc03nuq8tcdp987suqo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

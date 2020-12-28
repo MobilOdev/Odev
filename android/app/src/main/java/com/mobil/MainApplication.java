@@ -13,6 +13,7 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.mobil.generated.BasePackageList;
 
+import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import org.unimodules.adapters.react.ReactAdapterPackage;
 import org.unimodules.adapters.react.ModuleRegistryAdapter;
 import org.unimodules.adapters.react.ReactModuleRegistryProvider;
@@ -42,7 +43,9 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       List<ReactPackage> packages = new PackageList(this).getPackages();
+      
       packages.add(new ModuleRegistryAdapter(mModuleRegistryProvider));
+      packages.add(new ReactNativeFirebaseAppPackage(),new RNFirebaseAuthPackage());
       return packages;
     }
 
