@@ -1,64 +1,86 @@
-import React, { useState } from 'react';
-import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Alert, AsyncStorage } from 'react-native';
-import styles from '../../Styles/styleslogin'
-import auth from '@react-native-firebase/auth';
+import React from 'react';
+import { Text, View, TextInput, Dimensions, Alert } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import * as firebase from 'firebase';
+import DrawerNavigator from '../../Navigation/DrawerNavigator';
+import { NavigationContainer, StackActions } from '@react-navigation/native';
+const { width, height } = Dimensions.get('window');
+export default class LoginPage extends React.Component {
 
-const LoginPage = (props) => {
+    state = {
+        email: '',
+        password: '',
+        loading: false,
+        login: false
+    }
 
-    const [email, setUserEmail] = useState("");
-    const [password, setUserPassword] = useState("");
-
-    const setMail = text => setUserEmail(text);
-    const setPassword = text => setUserPassword(text)
 
 
-    const loginUser = async () => {
-        try {
-            await auth().signInWithEmailAndPassword(email, password)
+    loginApp = () => {
+        this.setState({ loading: true });
 
-            AsyncStorage.setItem('@USER_ID', auth().currentUser.uid)
-            Alert.alert("Hoş Geldiniz!", "Kullanıcı giriş başarılı şekilde gerçekleşmiştir.")
-        }
-        catch (error) {
-            console.log(error)
-            Alert.alert("Üzgünüz!", "Bir hata oluştu!")
+        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
+            .then(() => {
+                this.setState({ login: true });
+            }).catch((err) => {
+                console.log(err);
+                this.setState({ loading: false });
+                Alert.alert(
+                    'Oops',
+                    'Giriş Yapılamadı. Lütfen tekrar deneyiniz.',
+                    [
+                        { text: 'Tamam' }
+                    ]
+                )
+            })
+    }
+
+    goSignUp = () => {
+        const pushAction = StackActions.push('SignUp');
+
+        this.props.navigation.dispatch(pushAction);
+    }
+
+    render() {
+        if (this.state.login) {
+            return (
+
+                <DrawerNavigator />
+
+            )
+        } else {
+            return (
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <TextInput
+                        placeholder="Email Adresi"
+                        style={{ marginTop: 10, width: width - 40, padding: 15, fontSize: 12, backgroundColor: '#f5f5f5' }}
+                        underlineColorAndroid='transparent'
+                        onChangeText={email => this.setState({ email: email })}
+                        value={this.state.email}
+                        keyboardType='email-address'
+                        placeholderTextColor='gray'
+                    />
+                    <TextInput
+                        placeholder="Şifre"
+                        style={{ marginTop: 10, width: width - 40, padding: 15, fontSize: 12, backgroundColor: '#f5f5f5', borderRadius: 4 }}
+                        underlineColorAndroid='transparent'
+                        onChangeText={password => this.setState({ password: password })}
+                        value={this.state.password}
+                        secureTextEntry
+                        placeholderTextColor='gray'
+                    />
+                    <TouchableOpacity onPress={() => this.loginApp()} >
+                        <View style={{ alignItems: 'center', backgroundColor: '#ff655b', width: width - 40, padding: 15, borderRadius: 4, marginTop: 10 }}>
+                            <Text style={{ color: '#fff', fontSize: 12 }}>Giriş Yap</Text>
+                        </View></TouchableOpacity>
+                    <TouchableOpacity onPress={() => this.goSignUp()}>
+                        <View style={{ alignItems: 'center', backgroundColor: '#ff655b', width: width - 40, padding: 15, borderRadius: 4, marginTop: 10 }}>
+                            <Text style={{ color: '#fff', fontSize: 12 }}>Kayıt ol</Text>
+                        </View></TouchableOpacity>
+
+                </View>
+            )
         }
     }
 
-    return (
-        <SafeAreaView style={styles.loginPage.viewBackground}>
-            <View style={styles.loginPage.viewPosition}>
-
-                <TextInput
-                    style={styles.loginPage.textInputStyle}
-                    placeholder="e-mail.."
-                    placeholderTextColor="white"
-                    onChangeText={setMail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
-
-                <TextInput
-                    style={styles.loginPage.textInputStyle}
-                    placeholder="Password"
-                    placeholderTextColor="white"
-                    onChangeText={setPassword}
-                    secureTextEntry
-                />
-
-                <View style={{ marginTop: 20 }}>
-                    <TouchableOpacity style={styles.loginPage.touchableStyle} onPress={loginUser} >
-                        <Text>Login</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.loginPage.touchableStyle} onPress={() => props.navigation.navigate("Sign")}>
-                        <Text>Sign Up</Text>
-                    </TouchableOpacity>
-                </View>
-
-            </View>
-        </SafeAreaView>
-    )
 }
-
-export { LoginPage }

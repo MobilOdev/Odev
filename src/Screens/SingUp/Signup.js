@@ -1,83 +1,79 @@
-import React, { useState } from 'react'
-import { SafeAreaView, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native';
-import auth from '@react-native-firebase/auth';
-import styles from '../../Styles/stylesignup'
-import { errorResolve } from '../../errorFunction'
+import React from 'react'
+import { StatusBar, StyleSheet, Text, TextInput, View, RefreshControl, Dimensions, ScrollView, Alert, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import * as firebase from 'firebase';
+import { StackActions } from '@react-navigation/native';
+const { width, height } = Dimensions.get('window')
 
-const SignUpPage = (props) => {
+export default class SignUp extends React.Component {
 
-    const [usermail, setUserMail] = useState("");
-    const [userPassword, setUserPassword] = useState("");
-    const [userPasswordRep, setUserPasswordRep] = useState("");
+    state = {
+        email: '',
+        name: '',
+        password: '',
+        loading: false,
+    }
 
-    const mail = text => setUserMail(text);
-    const password = text => setUserPassword(text);
-    const passwordRep = text => setUserPasswordRep(text)
+    kayitol = () => {
+        firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
+            .then((auth) => {
+                alert("Kayıt Başarılı. Girişe yönlendiriliyorsunuz.")
+                const pushAction = StackActions.push('Login');
 
-    const signUser = async () => {
-        if (userPassword === userPasswordRep) {
-            try {
-                await auth().createUserWithEmailAndPassword(usermail, userPassword)
-                Alert.alert("Welcome!", "Your user registration is success complete.")
-                props.navigation.goBack()
-            }
-            catch (error) {
-                console.log(error);
-                Alert.alert("Sorry..", errorResolve(error.code))
+                this.props.navigation.dispatch(pushAction);
 
-            }
+            }).catch(error => {
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('Bu e-posta zaten kullanılıyor.');
+                }
+
+                if (error.code === 'auth/invalid-email') {
+                    alert('E-posta adresi bulunamadı.');
+                }
+                if (error.code === 'auth/weak-password') {
+                    alert('Şifre en az altı karakter olmalı.');
+                }
+                else {
+                    console.log(errorCode)
+                }
+                console.error(error);
+            });
+    }
+
+    render() {
+        if (this.state.loading) {
+            return (
+                <View style={{ flex: 1, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
+                    <ActivityIndicator size='small' color='black' />
+                </View>
+            );
         }
         else
-            Alert.alert("Sorry..", "Passwords error!")
-    }
+            return (
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <TextInput
+                        placeholder="Email Adresi"
+                        style={{ marginTop: 10, width: width - 40, padding: 15, fontSize: 12, backgroundColor: '#f5f5f5' }}
+                        underlineColorAndroid='transparent'
+                        onChangeText={email => this.setState({ email: email })}
+                        value={this.state.email}
+                        keyboardType='email-address'
+                        placeholderTextColor='gray'
+                    />
+                    <TextInput
+                        placeholder="Şifre"
+                        style={{ marginTop: 10, width: width - 40, padding: 15, fontSize: 12, backgroundColor: '#f5f5f5', borderRadius: 4 }}
+                        underlineColorAndroid='transparent'
+                        onChangeText={password => this.setState({ password: password })}
+                        value={this.state.password}
+                        secureTextEntry
+                        placeholderTextColor='gray'
+                    />
+                    <TouchableOpacity onPress={() => this.kayitol()}>
+                        <View style={{ alignItems: 'center', backgroundColor: '#ff655b', width: width - 40, padding: 15, borderRadius: 4, marginTop: 10 }}>
+                            <Text style={{ color: '#fff', fontSize: 12 }}>Kayıt ol</Text>
+                        </View></TouchableOpacity>
 
-    const goBackPage = () => {
-        props.navigation.navigate("Login")
-    }
-
-    return (
-        <SafeAreaView style={styles.signUpPage.viewBackground}>
-            <View style={styles.signUpPage.viewPosition}>
-
-                <TextInput
-                    style={styles.signUpPage.textInputStyle}
-                    placeholder="e-mail.."
-                    placeholderTextColor="white"
-                    onChangeText={mail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
-
-
-                <TextInput
-                    style={styles.signUpPage.textInputStyle}
-                    placeholder="Password"
-                    placeholderTextColor="white"
-                    onChangeText={password}
-                    secureTextEntry
-                />
-
-                <TextInput
-                    style={styles.signUpPage.textInputStyle}
-                    placeholder="Confirm Password"
-                    placeholderTextColor="white"
-                    onChangeText={passwordRep}
-                    secureTextEntry
-                />
-
-                <View style={{ marginTop: 20 }}>
-                    <TouchableOpacity style={styles.signUpPage.touchableStyle} onPress={signUser}>
-                        <Text>Register</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.signUpPage.touchableStyle} onPress={goBackPage}>
-                        <Text>Home</Text>
-                    </TouchableOpacity>
                 </View>
-
-            </View>
-        </SafeAreaView>
-    )
+            )
+    }
 }
-
-export { SignUpPage }
