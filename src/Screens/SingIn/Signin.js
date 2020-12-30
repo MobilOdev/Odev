@@ -10,28 +10,30 @@ export default class LoginPage extends React.Component {
     state = {
         email: '',
         password: '',
+        name: 'Taha',
         loading: false,
         login: false
     }
-
-
 
     loginApp = () => {
         this.setState({ loading: true });
 
         firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
             .then(() => {
+
                 this.setState({ login: true });
-            }).catch((err) => {
-                console.log(err);
-                this.setState({ loading: false });
-                Alert.alert(
-                    'Oops',
-                    'Giriş Yapılamadı. Lütfen tekrar deneyiniz.',
-                    [
-                        { text: 'Tamam' }
-                    ]
-                )
+            }).catch((error) => {
+
+                if (error.code === 'auth/invalid-email') {
+                    alert('Bu e-posta bulunamadı.');
+                }
+                if (error.code === 'auth/wrong-password') {
+                    alert('Şifreniz yanlış.');
+                }
+                else {
+                    console.log(error)
+                }
+                console.error(error);
             })
     }
 

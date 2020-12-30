@@ -1,13 +1,15 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { Text } from 'react-native';
-
+import messaging from '@react-native-firebase/messaging';
+import * as Font from 'expo-font';
 import { createStackNavigator } from '@react-navigation/stack';
 import DrawerNavigator from './src/Navigation/DrawerNavigator';
 import * as firebase from 'firebase';
 import Login from './src/Screens/SingIn/Signin';
 import SignUp from './src/Screens/SingUp/Signup';
 const Stack = createStackNavigator();
+
 export default class App extends React.Component {
 
   constructor(props) {
@@ -19,9 +21,14 @@ export default class App extends React.Component {
 
 
   componentDidMount = async () => {
+    await Font.loadAsync({
+      Roboto: require('native-base/Fonts/Roboto.ttf'),
+      Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
+    });
     var firebaseConfig = {
       apiKey: "AIzaSyD-Ni2UY5L22apFQsB5V1NPQNSKeEOcfl8",
       authDomain: "odev-3fb1c.firebaseapp.com",
+      databaseURL: "https://odev-3fb1c-default-rtdb.firebaseio.com",
       projectId: "odev-3fb1c",
       storageBucket: "odev-3fb1c.appspot.com",
       messagingSenderId: "550452464733",
@@ -53,6 +60,7 @@ export default class App extends React.Component {
       });
   }*/
   render() {
+
     if (this.state.loading == false) {
       return (
         <NavigationContainer>

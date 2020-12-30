@@ -2,6 +2,7 @@ import React from 'react'
 import { StatusBar, StyleSheet, Text, TextInput, View, RefreshControl, Dimensions, ScrollView, Alert, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import * as firebase from 'firebase';
 import { StackActions } from '@react-navigation/native';
+import { Permissions, Notifications } from 'expo';
 const { width, height } = Dimensions.get('window')
 
 export default class SignUp extends React.Component {
@@ -16,10 +17,12 @@ export default class SignUp extends React.Component {
     kayitol = () => {
         firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then((auth) => {
+                let uid = auth.user.uid;
+                this.createUser(uid)
                 alert("Kayıt Başarılı. Girişe yönlendiriliyorsunuz.")
-                const pushAction = StackActions.push('Login');
 
-                this.props.navigation.dispatch(pushAction);
+
+                this.props.navigation.dispatch(StackActions.replace('Login'));
 
             }).catch(error => {
                 if (error.code === 'auth/email-already-in-use') {
@@ -38,7 +41,13 @@ export default class SignUp extends React.Component {
                 console.error(error);
             });
     }
-
+    createUser = (uid) => {
+        firebase.database().ref('users').child(uid).set({
+            email: this.state.email,
+            uid: uid,
+            name: this.state.name,
+        });
+    }
     render() {
         if (this.state.loading) {
             return (
@@ -50,6 +59,15 @@ export default class SignUp extends React.Component {
         else
             return (
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <TextInput
+                        placeholder="İsim"
+                        style={{ marginTop: 10, width: width - 40, padding: 15, fontSize: 12, backgroundColor: '#f5f5f5' }}
+                        underlineColorAndroid='transparent'
+                        onChangeText={name => this.setState({ name: name })}
+                        value={this.state.name}
+                        keyboardType='default'
+                        placeholderTextColor='gray'
+                    />
                     <TextInput
                         placeholder="Email Adresi"
                         style={{ marginTop: 10, width: width - 40, padding: 15, fontSize: 12, backgroundColor: '#f5f5f5' }}

@@ -5,6 +5,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import HomeScreen from "../Screens/HomeScreen";
 import ProfileScreen from "../Screens/ProfileScreen";
+import ContactScreen from "../Screens/ContactScreen";
+
 
 const Stack = createStackNavigator();
 
@@ -32,5 +34,11 @@ const ProfileStackNavigator = () => {
         </Stack.Navigator>
     );
 };
-
-export { MainStackNavigator, ProfileStackNavigator };
+const ContactStackNavigator = () => {
+    return (
+        <Stack.Navigator screenOptions={screenOptionStyle}>
+            <Stack.Screen name="Contact" component={ContactScreen} />
+        </Stack.Navigator>
+    );
+};
+export { MainStackNavigator, ProfileStackNavigator, ContactStackNavigator };
