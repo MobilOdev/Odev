@@ -77,7 +77,8 @@ export default class HomeScreen extends React.Component {
         firebase
             .database()
             .ref('events/').on('value', snapshot => {
-                this.setState({ events: snapshot.val() })
+                this.setState({ events: snapshot.val() });
+                console.log(snapshot.val());
 
             });
     }
@@ -98,7 +99,7 @@ export default class HomeScreen extends React.Component {
                                         <Left>
                                             <Thumbnail source={{ uri: 'https://picsum.photos/200/300' }} />
                                             <Body>
-                                                <Text>NativeBase</Text>
+                                                <Text>{event.title}</Text>
                                                 <Text note>GeekyAnts</Text>
                                             </Body>
                                         </Left>

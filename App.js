@@ -1,4 +1,5 @@
 import React from 'react';
+import { StackActions } from '@react-navigation/native';
 import { NavigationContainer } from '@react-navigation/native';
 import { Text } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
@@ -15,7 +16,8 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: true
+      loading: true,
+      saved: false
     }
   }
 
@@ -35,9 +37,16 @@ export default class App extends React.Component {
       appId: "1:550452464733:web:207122c389146025c351b4"
     };
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    this.setState({ loading: false });
+    if (firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        console.log('user is logged');
+        this.setState({ saved: true })
+      }
+      else
+        this.setState({ loading: false });
 
+    });
 
   }
 
@@ -69,6 +78,11 @@ export default class App extends React.Component {
             <Stack.Screen name="SignUp" component={SignUp} />
           </Stack.Navigator>
         </NavigationContainer>)
+    }
+    if (this.state.saved == true) {
+      return (<NavigationContainer>
+        <DrawerNavigator />
+      </NavigationContainer>)
     }
     else {
       return (
