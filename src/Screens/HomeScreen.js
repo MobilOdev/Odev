@@ -18,6 +18,8 @@ export default class HomeScreen extends React.Component {
         super(props);
         this.state = {
             events: [],
+            num: null,
+            load: true
         };
     }
     sendPushNotification = (expoToken) => {
@@ -68,7 +70,26 @@ export default class HomeScreen extends React.Component {
             .ref('users/' + this.currentUser.uid + '/push_token')
             .set(token);
     };
+    createUser = (id) => {
+        var user = firebase.auth().currentUser;
+        firebase.database().ref('events/' + id + '/subscriber').child(user.uid).set({
+            email: user.email,
 
+        });
+    }
+    readSubscriberCount = (id) => {
+        // console.log(id)
+        var b;
+        var ref = firebase.database().ref('events/' + id);
+        ref.once('value', snapshot => {
+
+            b = snapshot.child("subscriber").numChildren();
+
+        })
+        console.log(b);
+        this.forceUpdate();
+
+    }
     componentDidMount = async () => {
 
         this.currentUser = await firebase.auth().currentUser;
@@ -78,63 +99,67 @@ export default class HomeScreen extends React.Component {
             .database()
             .ref('events/').on('value', snapshot => {
                 this.setState({ events: snapshot.val() });
-                console.log(snapshot.val());
 
             });
     }
     render() {
+        if (this.state.load == true) {
+            return (
+                <Container >
+                    <Content>
 
-        return (
-            <Container >
-                <Content>
 
+                        {
+                            this.state.events.length > 0 &&
+                            this.state.events.map(((event, index) => {
 
-                    {
-                        this.state.events.length > 0 &&
-                        this.state.events.map((event => {
-                            return (
+                                { this.readSubscriberCount(index) }
 
-                                <Card>
-                                    <CardItem>
-                                        <Left>
-                                            <Thumbnail source={{ uri: 'https://picsum.photos/200/300' }} />
+                                return (
+                                    <Card key={index} >
+                                        <CardItem>
+                                            <Left>
+                                                <Thumbnail source={{ uri: 'https://picsum.photos/200/300' }} />
+                                                <Body>
+                                                    <Text  >{event.title}</Text>
+                                                    <Text >{event.producer}</Text>
+                                                </Body>
+                                            </Left>
+                                        </CardItem>
+                                        <CardItem >
+                                            <Text>{event.detail}</Text>
+                                        </CardItem>
+                                        <CardItem>
+                                            <Left>
+                                                <Button onPress={() => this.createUser(event.id)} transparent>
+                                                    <Icon active name="thumbs-up" />
+                                                    <Text>Katıl</Text>
+                                                </Button>
+                                            </Left>
                                             <Body>
-                                                <Text>{event.title}</Text>
-                                                <Text note>GeekyAnts</Text>
+                                                <Button transparent >
+                                                    <Icon active name="chatbubbles" />
+                                                    <Text   >Katılan kişi sayısı:</Text>
+
+                                                </Button>
                                             </Body>
-                                        </Left>
-                                    </CardItem>
-                                    <CardItem >
-                                        <Image source={{ uri: 'https://picsum.photos/200/300' }} style={{ height: 200, width: null, flex: 1 }} />
-                                    </CardItem>
-                                    <CardItem>
-                                        <Left>
-                                            <Button transparent>
-                                                <Icon active name="thumbs-up" />
-                                                <Text>12 Likes</Text>
-                                            </Button>
-                                        </Left>
-                                        <Body>
-                                            <Button transparent>
-                                                <Icon active name="chatbubbles" />
-                                                <Text>4 Comments</Text>
-                                            </Button>
-                                        </Body>
-                                        <Right>
-                                            <Text>11h ago</Text>
-                                        </Right>
-                                    </CardItem>
-                                </Card>
+
+                                        </CardItem>
+                                    </Card>
 
 
-                            )
-                        }))
-                    }
+                                )
+                            }))
+                        }
 
 
-                </Content>
-            </Container >
-        );
+                    </Content>
+                </Container >
+            );
+        }
+        else {
+            return (<Text>sdasd</Text>)
+        }
 
     }
 }

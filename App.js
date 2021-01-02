@@ -9,6 +9,10 @@ import DrawerNavigator from './src/Navigation/DrawerNavigator';
 import * as firebase from 'firebase';
 import Login from './src/Screens/SingIn/Signin';
 import SignUp from './src/Screens/SingUp/Signup';
+import { LogBox } from 'react-native';
+import DetailScreen from './src/Screens/DetailScreen';
+
+LogBox.ignoreLogs(['Setting a timer']);
 const Stack = createStackNavigator();
 
 export default class App extends React.Component {
@@ -37,7 +41,7 @@ export default class App extends React.Component {
       appId: "1:550452464733:web:207122c389146025c351b4"
     };
     // Initialize Firebase
-    if (firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         console.log('user is logged');
@@ -70,16 +74,17 @@ export default class App extends React.Component {
   }*/
   render() {
 
-    if (this.state.loading == false) {
+    if (this.state.loading == false && this.state.saved == false) {
       return (
         <NavigationContainer>
           <Stack.Navigator headerMode='none'>
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} />
+            <Stack.Screen name="DetailScreen" component={DetailScreen} />
           </Stack.Navigator>
         </NavigationContainer>)
     }
-    if (this.state.saved == true) {
+    else if (this.state.saved == true) {
       return (<NavigationContainer>
         <DrawerNavigator />
       </NavigationContainer>)
