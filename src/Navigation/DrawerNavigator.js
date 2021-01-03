@@ -7,15 +7,17 @@ import {
     DrawerItemList,
     DrawerItem,
 } from "@react-navigation/drawer";
-import { StackActions } from '@react-navigation/native';
+import { NavigationContainer, StackActions } from '@react-navigation/native';
 import { Avatar, Title, Caption } from 'react-native-paper'
-import { ContactStackNavigator, ProfileStackNavigator } from "./StackNavigator";
+import { ContactStackNavigator, LoginStackNavigator } from "./StackNavigator";
 import TabNavigator from "./TabNavigator";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, BackHandler } from "react-native";
 import * as firebase from 'firebase';
 import { string } from "yup";
+import Login from '../Screens/SingIn/Signin';
+import SignUp from '../Screens/SingUp/Signup';
+import { createStackNavigator } from "@react-navigation/stack";
 const Drawer = createDrawerNavigator();
-
 const DrawerNavigator = (props) => {
 
 
@@ -24,21 +26,26 @@ const DrawerNavigator = (props) => {
         <Drawer.Navigator drawerContent={props => <CustomDrawerContent {...props} />} >
             <Drawer.Screen name="Home" component={TabNavigator} />
             <Drawer.Screen name="Contact" component={ContactStackNavigator} />
+
         </Drawer.Navigator>
     );
 };
 function CustomDrawerContent(props) {
     const [name, setName] = useState(0);
 
-    var user = firebase.auth().currentUser;
+    var user;
 
-    {
+
+    user = firebase.auth().currentUser;
+
+    if (user != null && user != undefined) {
         firebase.database()
             .ref(`users/${user.uid}/name`).once('value', (snapshot) => {
                 setName(snapshot.val());
 
             })
     }
+
 
     return (
         <DrawerContentScrollView {...props}>
@@ -52,21 +59,25 @@ function CustomDrawerContent(props) {
                 />
                 <View style={{ marginLeft: 15, flexDirection: 'column' }}>
                     <Title style={styles.title}>{name}</Title>
-                    <Caption style={styles.caption}>{user.email}</Caption>
+                    <Caption style={styles.caption}>{user != null ? user.email : ''}</Caption>
                 </View>
             </View>
             <DrawerItemList {...props} />
             <DrawerItem
                 label="Hesaptan Çık"
                 onPress={() => {
-                    firebase.auth().signOut();
-                    props.navigation.dispatch(StackActions.replace('Login'));
+                    firebase.auth().signOut().then(() => {
+                        BackHandler.exitApp();
+                    });
+
                 }}
             />
         </DrawerContentScrollView>
     );
 }
+
 export default DrawerNavigator;
+
 const styles = StyleSheet.create({
     drawerContent: {
         flex: 1,

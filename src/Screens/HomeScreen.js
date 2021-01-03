@@ -1,6 +1,5 @@
 import Constants from 'expo-constants';
 import React from 'react';
-import { StyleSheet, View, TextInput, Image } from 'react-native';
 import * as firebase from 'firebase';
 import * as Notifications from 'expo-notifications';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right, List, ListItem } from 'native-base';
@@ -14,12 +13,15 @@ Notifications.setNotificationHandler({
     }),
 });
 export default class HomeScreen extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = {
             events: [],
             num: null,
-            load: true
+            count: [],
+            load: true,
+            mrb: false
         };
     }
     sendPushNotification = (expoToken) => {
@@ -31,8 +33,8 @@ export default class HomeScreen extends React.Component {
             },
             body: JSON.stringify({
                 to: expoToken,
-                title: 'Titleyi Gir',
-                body: 'Bodyi Gir',
+                title: 'Tebrikler',
+                body: 'Etkinliğe kayıt oldunuz',
                 priority: 'normal'
             }),
         });
@@ -51,7 +53,7 @@ export default class HomeScreen extends React.Component {
                 return;
             }
             token = (await Notifications.getExpoPushTokenAsync()).data;
-            console.log(token);
+
         } else {
             alert('Must use physical device for Push Notifications');
         }
@@ -70,51 +72,62 @@ export default class HomeScreen extends React.Component {
             .ref('users/' + this.currentUser.uid + '/push_token')
             .set(token);
     };
-    createUser = (id) => {
+    createUser = (id, event) => {
         var user = firebase.auth().currentUser;
         firebase.database().ref('events/' + id + '/subscriber').child(user.uid).set({
             email: user.email,
 
         });
+        firebase.database().ref('users/' + user.uid).child('registered/' + id).set({
+            name: event
+
+        });
+    }
+    checkuser = (id, event) => {
+        var user = firebase.auth().currentUser;
+        firebase.database().ref('events/' + '3' + '/subscriber/').child(user.uid).once('value', snapshot => {
+            if (snapshot.val() === null) {
+                this.createUser(id, event);
+                this.sendPushNotification("ExponentPushToken[-uLTQFB8_R0mI_sKEDdoId]");
+
+            }
+            else {
+                alert("Zaten kayıtlısız");
+            }
+        });
+
+
     }
     readSubscriberCount = (id) => {
-        // console.log(id)
         var b;
         var ref = firebase.database().ref('events/' + id);
-        ref.once('value', snapshot => {
-
+        ref.on('value', snapshot => {
             b = snapshot.child("subscriber").numChildren();
-
         })
-        console.log(b);
-        this.forceUpdate();
-
+        this.state.count.push(b);
     }
     componentDidMount = async () => {
-
         this.currentUser = await firebase.auth().currentUser;
         await this.registerForPushNotificationsAsync();
-        this.sendPushNotification("ExponentPushToken[-uLTQFB8_R0mI_sKEDdoId]");
         firebase
             .database()
             .ref('events/').on('value', snapshot => {
                 this.setState({ events: snapshot.val() });
 
+
             });
     }
     render() {
         if (this.state.load == true) {
+
             return (
                 <Container >
                     <Content>
-
-
                         {
                             this.state.events.length > 0 &&
                             this.state.events.map(((event, index) => {
 
                                 { this.readSubscriberCount(index) }
-
                                 return (
                                     <Card key={index} >
                                         <CardItem>
@@ -131,7 +144,10 @@ export default class HomeScreen extends React.Component {
                                         </CardItem>
                                         <CardItem>
                                             <Left>
-                                                <Button onPress={() => this.createUser(event.id)} transparent>
+                                                <Button onPress={() => {
+                                                    this.checkuser(event.id, event.title);
+
+                                                }} transparent>
                                                     <Icon active name="thumbs-up" />
                                                     <Text>Katıl</Text>
                                                 </Button>
@@ -139,20 +155,14 @@ export default class HomeScreen extends React.Component {
                                             <Body>
                                                 <Button transparent >
                                                     <Icon active name="chatbubbles" />
-                                                    <Text   >Katılan kişi sayısı:</Text>
-
+                                                    <Text   >Katılan kişi sayısı:{this.state.count.shift()}</Text>
                                                 </Button>
                                             </Body>
-
                                         </CardItem>
                                     </Card>
-
-
                                 )
                             }))
                         }
-
-
                     </Content>
                 </Container >
             );
@@ -160,6 +170,5 @@ export default class HomeScreen extends React.Component {
         else {
             return (<Text>sdasd</Text>)
         }
-
     }
 }

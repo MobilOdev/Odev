@@ -9,7 +9,7 @@ export default class ContactScreen extends React.Component {
     render() {
         return (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Text>Contact Screen</Text>
+                <Text style={{ justifyContent: 'center', alignItems: 'center', margin: 50 }}>Sende bizlere sosyal medya hesap ve e-postalarımızdan fikirlerinizi iletebilirsin. E-posta: challengeguide@gmail.com</Text>
 
             </View>
         );

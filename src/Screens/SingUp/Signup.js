@@ -22,7 +22,9 @@ export default class SignUp extends React.Component {
                 alert("Kayıt Başarılı. Girişe yönlendiriliyorsunuz.")
 
 
-                this.props.navigation.dispatch(StackActions.replace('Login'));
+                const pushAction = StackActions.replace('Login');
+
+                this.props.navigation.dispatch(pushAction);
 
             }).catch(error => {
                 if (error.code === 'auth/email-already-in-use') {
@@ -36,7 +38,7 @@ export default class SignUp extends React.Component {
                     alert('Şifre en az altı karakter olmalı.');
                 }
                 else {
-                    console.log(errorCode)
+                    console.log(error)
                 }
                 console.error(error);
             });

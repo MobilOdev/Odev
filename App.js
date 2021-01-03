@@ -10,7 +10,6 @@ import * as firebase from 'firebase';
 import Login from './src/Screens/SingIn/Signin';
 import SignUp from './src/Screens/SingUp/Signup';
 import { LogBox } from 'react-native';
-import DetailScreen from './src/Screens/DetailScreen';
 
 LogBox.ignoreLogs(['Setting a timer']);
 const Stack = createStackNavigator();
@@ -21,13 +20,12 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       loading: true,
-      saved: false
     }
   }
 
 
-  componentDidMount = async () => {
-    await Font.loadAsync({
+  componentDidMount = () => {
+    Font.loadAsync({
       Roboto: require('native-base/Fonts/Roboto.ttf'),
       Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
     });
@@ -41,54 +39,28 @@ export default class App extends React.Component {
       appId: "1:550452464733:web:207122c389146025c351b4"
     };
     // Initialize Firebase
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        console.log('user is logged');
-        this.setState({ saved: true })
-      }
-      else
-        this.setState({ loading: false });
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
 
-    });
+    }
+
 
   }
 
-  /*async girisyap() {
-    firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then(() => {
-      alert('signed in!');
-      this.setState({ login: true });
-    })
-      .catch(function (error) {
-      
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        if (errorCode === 'auth/wrong-password') {
-          alert('Wrong password.');
-        } else {
-          alert(errorMessage);
-          console.log(errorCode);
-        }
-        console.log(error);
-      });
-  }*/
+
+
   render() {
 
-    if (this.state.loading == false && this.state.saved == false) {
+    if (this.state.loading == true) {
       return (
         <NavigationContainer>
           <Stack.Navigator headerMode='none'>
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} />
-            <Stack.Screen name="DetailScreen" component={DetailScreen} />
           </Stack.Navigator>
         </NavigationContainer>)
     }
-    else if (this.state.saved == true) {
-      return (<NavigationContainer>
-        <DrawerNavigator />
-      </NavigationContainer>)
-    }
+
     else {
       return (
         <Text>sa</Text>

@@ -2,11 +2,13 @@
 
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import * as firebase from 'firebase';
 
 import HomeScreen from "../Screens/HomeScreen";
 import ProfileScreen from "../Screens/ProfileScreen";
 import ContactScreen from "../Screens/ContactScreen";
-
+import Login from '../Screens/SingIn/Signin';
+import SignUp from '../Screens/SingUp/Signup';
 
 const Stack = createStackNavigator();
 
@@ -41,4 +43,5 @@ const ContactStackNavigator = () => {
         </Stack.Navigator>
     );
 };
+
 export { MainStackNavigator, ProfileStackNavigator, ContactStackNavigator };
